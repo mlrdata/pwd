@@ -14,10 +14,10 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
-import java.util.Arrays;
-import java.util.Base64;
-import java.util.Map;
-import java.util.Scanner;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 
 /**
  * AES加密解密
@@ -38,11 +38,22 @@ public class PasswordService {
     public void encryption(@RequestBody Map<String, String> data, HttpServletResponse response) {
         String plainText = data.get("plainText");
         String userKey = data.get("userKey");
+        String fileName = data.get("fileName");
         if (StringUtils.isEmpty(plainText) || StringUtils.isEmpty(userKey)) {
             throw new BusinessException("加密内容或秘钥不能为空");
         }
 
-        String filePath = "pwd";  // 文件名
+        // 创建一个日期对象
+        Date now = new Date();
+        // 定义所需的格式
+        SimpleDateFormat formatter = new SimpleDateFormat("_yyyy_MM_dd_");
+
+        // 格式化当前日期
+        String formattedDate = formatter.format(now);
+
+        // 输出结果
+        System.out.println(formattedDate);
+        String filePath = "pwd"+formattedDate+fileName;  // 文件名
 
         byte[] secretKey = hashUserKey(userKey, 256);  // 使用SHA-256哈希处理用户输入的密钥
         String encryptedText = encryptString(plainText, secretKey);  // 使用处理后的密钥进行加密

@@ -13,6 +13,13 @@
 					<el-button type="primary">解密</el-button>
 				</el-upload>
 
+				<el-input v-model="fileName" style="margin-left: 230px;" placeholder="文件所属用户,填写后自动加入加密后的文件名中" />
+
+				<el-select v-model="value" filterable fit-input-width placeholder="项目名称"
+					style="width: 150px;margin-left: 50px;" @change="handleCheckAll">
+					<el-option v-for="(item,index) in form" :key="index+1" :label="item.project" :value="index+1"
+						:title="item.project" />
+				</el-select>
 			</div>
 			<div style="padding: 20px;">
 				<span>秘钥：</span>
@@ -25,7 +32,7 @@
 			<el-button style="margin-left: 700px;" @click="addDomain" type="success" plain>新增项目</el-button>
 		</el-affix>
 
-		<div v-for="(plainText, index) in form" :key="index">
+		<div v-for="(plainText, index) in form" :key="index" :id="'name'+(index+1)">
 			<el-form-item>
 				<el-form-item :label="'所属项目' + (index+1)">
 					<el-input v-model="plainText.project" />
@@ -52,7 +59,7 @@
 			</el-form-item>
 			<el-form-item>
 				<el-form-item label="注册时间">
-					<el-date-picker v-model="plainText.time" type="date" placeholder="选择日期"  />
+					<el-date-picker v-model="plainText.time" type="date" placeholder="选择日期" />
 				</el-form-item>
 				<el-form-item label="其他">
 					<el-input v-model="plainText.desc" type="textarea" />
@@ -72,6 +79,8 @@
 
 <!--vue  组件选项定义-->
 <script>
+	import path from 'path';
+	import fs from 'fs';
 	export default {
 		data() {
 			return {
@@ -80,6 +89,8 @@
 				key: {
 					userKey: ""
 				},
+				value: '',
+				fileName: '',
 			}
 		},
 		created() {
@@ -90,7 +101,8 @@
 			download() {
 				this.$http.post('/pwd/encryption', {
 						plainText: JSON.stringify(this.form),
-						userKey: this.key.userKey
+						userKey: this.key.userKey,
+						fileName: this.fileName
 					})
 					.then(response => {
 						console.log("resp", response);
@@ -101,15 +113,6 @@
 							});
 							return;
 						}
-						// 处理响应数据，例如下载文件
-						const url = window.URL.createObjectURL(new Blob([response.data], {
-							type: "application/octet-stream"
-						}));
-						const link = document.createElement('a');
-						link.href = url;
-						link.setAttribute('download', 'pwd'); // 设置文件名，不带扩展名
-						document.body.appendChild(link);
-						link.click();
 					})
 					.catch(error => {
 						console.error('Download error:', error);
@@ -126,6 +129,7 @@
 				this.form = res;
 			},
 			addDomain() {
+				console.log(this.path);
 				this.form.push({
 					plainText: {}
 				})
@@ -135,6 +139,16 @@
 					this.form.splice(index, 1)
 				}
 			},
+			handleCheckAll(index) {
+				this.value = index;
+				this.$nextTick(() => {
+					let memberDom = document.querySelector('#name' + index);
+					memberDom.scrollIntoView({
+						behavior: 'smooth',
+						block: 'center'
+					})
+				})
+			},
 		},
 	}
 </script>
@@ -142,7 +156,8 @@
 <!--vue  scoped当前样式只适用于当前组件-->
 <style scoped>
 	#top {
-		padding: 20px;
+		/* padding: 20px; */
+		padding: 15px 60px 5px 60px;
 		display: flex;
 	}
 

@@ -2,9 +2,12 @@
   "name": "vueproject02",
   "version": "0.0.0",
   "private": true,
+  "main": "main.js",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "start": "electron .",
+    "packager": "electron-packager ./ pwd --platform=win32 --out=release --arch=x64 --overwrite   --ignore=node_modules",
     "preview": "vite preview --port 4173"
   },
   "dependencies": {
@@ -17,6 +20,8 @@
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^3.0.1",
+    "electron": "^33.0.0",
+    "electron-builder": "^25.1.8",
     "electron-packager": "^17.1.2",
     "vite": "^3.0.4"
   }
