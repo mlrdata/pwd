@@ -15,8 +15,6 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 /**
@@ -101,10 +99,14 @@ public class PasswordService {
 
             byte[] secretKey = hashUserKey(userKey, 256);  // 使用SHA-256哈希处理用户输入的密钥
             decryptedText = decryptString(encryptedText, secretKey);
-
+            if (StringUtils.isEmpty(decryptedText)){
+                throw new BusinessException("解密失败，文件为空");
+            }
 
         } catch (Exception e) {
-            e.printStackTrace();
+            if (e instanceof BusinessException){
+                throw (BusinessException) e;
+            }
             throw new BusinessException("解密失败，请检查文件和秘钥");
         }
         return decryptedText;
